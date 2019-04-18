@@ -75,7 +75,6 @@ test_that("Parameters for hill climb works", {
   expect_equal(sum(tmp$learner.model$weights), 1)
 
   metric = function(pred, true) {
-
     pred = colnames(pred)[max.col(pred)]
     tb = table(pred, true)
     return(1 - sum(diag(tb)) / sum(tb))

@@ -30,7 +30,6 @@ selectFeaturesSequential = function(learner, task, resampling, measures, bit.nam
   }
 
   gen.new.states.sfs = function(x) {
-
     xs = list()
     for (i in seq_along(x))
       if (x[i] == 0) {
@@ -42,7 +41,6 @@ selectFeaturesSequential = function(learner, task, resampling, measures, bit.nam
   }
 
   gen.new.states.sbs = function(x) {
-
     xs = list()
     for (i in seq_along(x))
       if (x[i] == 1) {

@@ -28,14 +28,12 @@ generateThreshVsPerfData = function(obj, measures, gridsize = 100L, aggregate = 
 #' @export
 generateThreshVsPerfData.Prediction = function(obj, measures, gridsize = 100L, aggregate = TRUE,
   task.id = NULL) {
-
   checkPrediction(obj, task.type = "classif", binary = TRUE, predict.type = "prob")
   generateThreshVsPerfData.list(namedList("prediction", obj), measures, gridsize, aggregate, task.id)
 }
 #' @export
 generateThreshVsPerfData.ResampleResult = function(obj, measures, gridsize = 100L, aggregate = TRUE,
   task.id = NULL) {
-
   obj = getRRPredictions(obj)
   checkPrediction(obj, task.type = "classif", binary = TRUE, predict.type = "prob")
   generateThreshVsPerfData.Prediction(obj, measures, gridsize, aggregate)
@@ -43,7 +41,6 @@ generateThreshVsPerfData.ResampleResult = function(obj, measures, gridsize = 100
 #' @export
 generateThreshVsPerfData.BenchmarkResult = function(obj, measures, gridsize = 100L, aggregate = TRUE,
   task.id = NULL) {
-
   tids = getBMRTaskIds(obj)
   if (is.null(task.id)) {
     task.id = tids[1L]
@@ -76,14 +73,11 @@ generateThreshVsPerfData.list = function(obj, measures, gridsize = 100L, aggrega
   grid = data.frame(threshold = seq(0, 1, length.out = gridsize))
   resamp = all(vlapply(obj, function(x) inherits(x, "ResamplePrediction")))
   out = lapply(obj, function(x) {
-
     do.call("rbind", lapply(grid$threshold, function(th) {
-
       pp = setThreshold(x, threshold = th)
       if (!aggregate && resamp) {
         iter = seq_len(pp$instance$desc$iters)
         asMatrixRows(lapply(iter, function(i) {
-
           pp$data = pp$data[pp$data$iter == i, ]
           c(setNames(performance(pp, measures = measures), mids), "iter" = i, "threshold" = th)
         }))
@@ -242,11 +236,11 @@ plotThreshVsPerf = function(obj, measures = obj$measures,
 #' pred = predict(fit, task = sonar.task)
 #' roc = generateThreshVsPerfData(pred, list(fpr, tpr))
 #' plotROCCurves(roc)
-#' 
+#'
 #' r = bootstrapB632plus(lrn, sonar.task, iters = 3)
 #' roc_r = generateThreshVsPerfData(r, list(fpr, tpr), aggregate = FALSE)
 #' plotROCCurves(roc_r)
-#' 
+#'
 #' r2 = crossval(lrn, sonar.task, iters = 3)
 #' roc_l = generateThreshVsPerfData(list(boot = r, cv = r2), list(fpr, tpr), aggregate = FALSE)
 #' plotROCCurves(roc_l)

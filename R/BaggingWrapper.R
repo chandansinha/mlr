@@ -72,13 +72,14 @@ makeBaggingWrapper = function(learner, bw.iters = 10L, bw.replace = TRUE, bw.siz
     makeNumericLearnerParam(id = "bw.size", lower = 0, upper = 1),
     makeNumericLearnerParam(id = "bw.feats", lower = 0, upper = 1, default = 2 / 3)
   )
-  makeHomogeneousEnsemble(id, learner$type, learner, packs, par.set = ps, par.vals = pv,
-    learner.subclass = "BaggingWrapper", model.subclass = "BaggingModel")
+  makeHomogeneousEnsemble(id, learner$type, learner, packs,
+    par.set = ps, par.vals = pv,
+    learner.subclass = "BaggingWrapper", model.subclass = "BaggingModel"
+  )
 }
 
 #' @export
 print.BaggingModel = function(x, ...) {
-
   s = capture.output(print.WrappedModel(x))
   u = sprintf("Bagged Learner: %s", class(x$learner$next.learner)[1L])
   s = append(s, u, 1L)
@@ -99,8 +100,10 @@ trainLearner.BaggingWrapper = function(.learner, .task, .subset = NULL, .weights
   # number of features to sample
   k = max(round(bw.feats * getTaskNFeats(.task)), 1)
 
-  args = list(n = n, m = m, k = k, bw.replace = bw.replace,
-    task = .task, learner = .learner, weights = .weights)
+  args = list(
+    n = n, m = m, k = k, bw.replace = bw.replace,
+    task = .task, learner = .learner, weights = .weights
+  )
   parallelLibrary("mlr", master = FALSE, level = "mlr.ensemble", show.info = FALSE)
   exportMlrOptions(level = "mlr.ensemble")
   models = parallelMap(doBaggingTrainIteration, i = seq_len(bw.iters), more.args = args, level = "mlr.ensemble")
@@ -108,7 +111,6 @@ trainLearner.BaggingWrapper = function(.learner, .task, .subset = NULL, .weights
 }
 
 doBaggingTrainIteration = function(i, n, m, k, bw.replace, task, learner, weights) {
-
   setSlaveOptions()
   bag = sample(seq_len(n), m, replace = bw.replace)
   task = subsetTask(task, features = sample(getTaskFeatureNames(task), k, replace = FALSE))
@@ -117,11 +119,9 @@ doBaggingTrainIteration = function(i, n, m, k, bw.replace, task, learner, weight
 
 #' @export
 predictLearner.BaggingWrapper = function(.learner, .model, .newdata, .subset = NULL, ...) {
-
   models = getLearnerModel(.model, more.unwrap = FALSE)
   g = if (.learner$type == "classif") as.character else identity
   p = asMatrixCols(lapply(models, function(m) {
-
     nd = .newdata[, m$features, drop = FALSE]
     g(predict(m, newdata = nd, subset = .subset, ...)$data$response)
   }))
@@ -135,7 +135,6 @@ predictLearner.BaggingWrapper = function(.learner, .model, .newdata, .subset = N
     if (.learner$type == "classif") {
       levs = .model$task.desc$class.levels
       p = apply(p, 1L, function(x) {
-
         x = factor(x, levels = levs) # we need all level for the table and we need them in consistent order!
         as.numeric(prop.table(table(x)))
       })
@@ -150,13 +149,11 @@ predictLearner.BaggingWrapper = function(.learner, .model, .newdata, .subset = N
 # be response, we can estimates probs and se on the outside
 #' @export
 setPredictType.BaggingWrapper = function(learner, predict.type) {
-
   setPredictType.Learner(learner, predict.type)
 }
 
 #' @export
 getLearnerProperties.BaggingWrapper = function(learner) {
-
   switch(learner$type,
     "classif" = union(getLearnerProperties(learner$next.learner), "prob"),
     "regr" = union(getLearnerProperties(learner$next.learner), "se")

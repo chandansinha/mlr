@@ -34,7 +34,6 @@ test_that("getResamplingIndices works with getFeatSelResult", {
   lrn2 = makeFeatSelWrapper(lrn1, resampling = inner, control = ctrl)
 
   r = resample(lrn2, multiclass.task, outer, extract = function(model) {
-
     getFeatSelResult(model)
   })
 
